@@ -1,0 +1,31 @@
+{
+  "name": "vibe-coding-workflow",
+  "version": "1.0.0",
+  "description": "4-Level (L0-L3) AI-Assisted Development Workflow for Claude Code – Init, Audit, Repair",
+  "keywords": [
+    "claude-code", "workflow", "vibe-coding", "ai-coding",
+    "ai-assisted-development", "prompt-engineering",
+    "developer-workflow", "coding-agent",
+    "spec-driven-development", "task-decomposition",
+    "llm-workflow", "software-development", "claude"
+  ],
+  "homepage": "https://github.com/YOUR_USERNAME/vibe-coding-workflow",
+  "license": "MIT",
+  "author": "",
+  "files": [
+    ".claude/",
+    "install.js",
+    "install.ps1",
+    "install.sh",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "bin": {
+    "init-vibe-install": "./install.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
