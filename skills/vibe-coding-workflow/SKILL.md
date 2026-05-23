@@ -1,4 +1,4 @@
----
+﻿---
 name: vibe-coding-workflow
 description: |
   New project AI development workflow initializer. Handles init, audit,
@@ -87,6 +87,7 @@ Create the directory `CLAUDE.md` if it doesn't exist, then write:
 | `scope-control.md` | Incidental fix rule, no new deps, no speculative abstractions |
 | `failure-protocol.md` | 2-strike escalation, re-diagnose vs escalate |
 | `context-hygiene.md` | File responsibilities, when to /clear, cross-session recovery |
+| `git-workflow.md` | Auto-commit triggers, commit boundaries, pre-commit verification |
 
 Use the templates in the [Templates](#templates-generated-rules-files) section below.
 
@@ -117,6 +118,7 @@ Output:
 - .claude/rules/scope-control.md
 - .claude/rules/failure-protocol.md
 - .claude/rules/context-hygiene.md
+- .claude/rules/git-workflow.md
 
 ### 引用的全局资源
 - ECC rules: ~/.claude/rules/ecc/[detected applicable layers]
@@ -280,6 +282,7 @@ DoD = Level Baseline + Task-Derived Acceptance Criteria
 | `.claude/rules/scope-control.md` | 范围控制 + 顺手修复规则 |
 | `.claude/rules/failure-protocol.md` | 2-strike 失败处理 + 升级路径 |
 | `.claude/rules/context-hygiene.md` | 上下文管理 + 文件职责边界 |
+| `.claude/rules/git-workflow.md` | 自动提交触发条件 + 提交边界 + 提交前验证 |
 
 ## 全局资源
 

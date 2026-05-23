@@ -1,4 +1,4 @@
----
+﻿---
 description: Initialize project with Vibe Coding workflow. Detects tech stack, generates thin CLAUDE.md + .claude/rules/. Supports init, audit, and repair modes.
 argument-hint: "[--dry-run | --force | --audit | --repair | --with-hooks | --minimal]"
 ---
@@ -44,6 +44,7 @@ Invokes the `vibe-coding-workflow` skill to detect tech stack, generate CLAUDE.m
    - `.claude/rules/scope-control.md` — scope boundaries + incidental fix rule
    - `.claude/rules/failure-protocol.md` — 2-strike escalation
    - `.claude/rules/context-hygiene.md` — file responsibilities + cross-session recovery
+   - `.claude/rules/git-workflow.md` — auto-commit triggers + commit boundaries + pre-commit verification
 4. **Report** — detected stack, generated files, referenced global resources
 
 ### Audit Mode (--audit)
