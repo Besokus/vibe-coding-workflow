@@ -1,0 +1,117 @@
+# Init Mode
+
+## Entry
+
+Use for explicit initialization requests (`/init-vibe`, "init project workflow", "setup workflow").
+
+## Steps
+
+1. Detect project context from common files (all optional):
+- `package.json`
+- `pyproject.toml` / `requirements.txt`
+- `go.mod`
+- `Cargo.toml`
+- `pom.xml` / `build.gradle*`
+- `composer.json`
+- `Gemfile`
+- `CMakeLists.txt`
+- `next.config.*` / `vite.config.*` / `svelte.config.*`
+- `tsconfig.json`
+- `Dockerfile` / `docker-compose.yml`
+- `.github/` / `.gitlab-ci.yml`
+
+2. Detect available verification commands from project scripts/tooling:
+- `build`, `test`, `lint`, `typecheck`, `format`
+
+3. Scan skills — both project-local and user-global — for dispatch registration:
+- Project skills: `.claude/skills/*/SKILL.md`
+- User skills: `~/.claude/skills/*/SKILL.md`
+- Available agents: `.claude/agents/*.md` and `~/.claude/agents/*.md`
+- Available commands: `.claude/commands/*.md` and `~/.claude/commands/*.md`
+- ECC rules: `~/.claude/rules/ecc/`
+
+   For each referenced skill in `skill-dispatch.md`, use three-tier matching:
+
+   **Tier 1 — Exact match:** name matches an installed skill/agent → `[available]`
+
+   **Tier 2 — Functional alternative:** no exact match found. Scan `name` and `description` of all installed skills/agents for keyword affinity using this reference map:
+
+   | Referenced Skill | Alternative Keywords to Match |
+   |---|---|
+   | `systematic-debugging` | debug, diagnose, troubleshoot, bug, root-cause, trace, investigation |
+   | `diagnose` | debug, troubleshoot, root-cause, investigation, trace, log-analysis |
+   | `grill-with-docs` | docs, document, research, understand, clarify, domain, reference, context7 |
+   | `grill-me` | review, critique, stress-test, challenge, assumptions, verify-plan |
+   | `karpathy-guidelines` | simplify, minimal, surgical, clean, reduce, scope, refactor, guideline, principle |
+   | `writing-plans` | plan, planning, strategy, roadmap, decompose, task-breakdown |
+   | `verification-before-completion` | verify, validate, test, check, confirm, complete, done, quality |
+   | `planning-with-files` | plan, task, persist, track, progress, todo, checkpoint, milestone |
+   | `receiving-code-review` | review, feedback, pr, pull-request, code-quality, cr |
+
+   For each keyword match found, record it as `[alternative]` with the discovered skill name and why it matches.
+
+   **Tier 3 — No match:** no exact match and no keyword affinity → `[fallback]` (use built-in protocol)
+
+   Write the complete three-tier dispatch table into the generated `skill-dispatch.md`.
+
+4. Ask developer for profile preference (or detect from flags):
+- `--profile fast` — compact L2 plans, but still require confirmation; no high-risk bypass
+- `--profile balanced` — default; L2 confirm, L3 discovery-first
+- `--profile strict` — L1+ more frequent confirmation; no auto-commit
+
+   Default to `balanced` if not specified.
+
+5. Generate project `CLAUDE.md` (thin entrypoint) with profile and rules split into always-load / on-demand.
+
+6. Generate `.claude/rules/` files — all 13 rules using managed block markers:
+   - `rule-priority.md` (always-load)
+   - `workflow-classification.md` (always-load)
+   - `task-contract.md` (always-load)
+   - `confirmation-policy.md` (always-load)
+   - `scope-control.md` (always-load)
+   - `dirty-worktree-protection.md` (always-load)
+   - `command-policy.md` (on-demand)
+   - `planning-policy.md` (on-demand)
+   - `failure-protocol.md` (on-demand)
+   - `verification-discipline.md` (on-demand)
+   - `git-workflow.md` (on-demand)
+   - `skill-dispatch.md` (on-demand, with detected skills populated)
+   - `context-hygiene.md` (on-demand)
+
+   Wrap generated content in `<!-- vibe: managed -->` / `<!-- /vibe: managed -->` blocks.
+
+7. If `--with-hooks` is requested, provide hooks suggestions (do not auto-enable).
+
+## Files To Generate
+
+- `CLAUDE.md`
+- `.claude/rules/rule-priority.md`
+- `.claude/rules/workflow-classification.md`
+- `.claude/rules/task-contract.md`
+- `.claude/rules/confirmation-policy.md`
+- `.claude/rules/scope-control.md`
+- `.claude/rules/dirty-worktree-protection.md`
+- `.claude/rules/command-policy.md`
+- `.claude/rules/planning-policy.md`
+- `.claude/rules/failure-protocol.md`
+- `.claude/rules/verification-discipline.md`
+- `.claude/rules/git-workflow.md`
+- `.claude/rules/skill-dispatch.md`
+- `.claude/rules/context-hygiene.md`
+
+Use `references/templates.md` for exact template content.
+
+## Output Contract
+
+Return:
+- selected profile (fast / balanced / strict)
+- detected stack summary
+- selected verification commands
+- generated file list with always-load / on-demand classification
+- referenced global resources summary (skills, agents, commands, ECC rules)
+- detected and registered skills summary (three-tier status per referenced skill:
+  - ✓ `systematic-debugging` — exact match
+  - ~ `grill-with-docs` → using `my-doc-agent` as alternative (keyword: docs)
+  - ✗ `karpathy-guidelines` — not found, using fallback)
+- recommended installations for critical/recommended missing skills (one-line hint, no verbose prompt)
+- optional hooks suggestions if requested

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Install Vibe Coding Workflow for Claude Code
-# Copies SKILL.md → ~/.claude/skills/vibe-coding-workflow/
+# Copies skill folder → ~/.claude/skills/vibe-coding-workflow/
 # Copies init-vibe.md → ~/.claude/commands/
 
 set -e
@@ -10,21 +10,21 @@ CLAUDE_DIR="$HOME/.claude"
 
 echo "[vibe-coding-workflow] 安装开始"
 
-# SKILL.md
-SKILL_SRC="$SOURCE_DIR/.claude/skills/vibe-coding-workflow/SKILL.md"
-SKILL_DEST="$CLAUDE_DIR/skills/vibe-coding-workflow/SKILL.md"
+# skill folder
+SKILL_SRC_DIR="$SOURCE_DIR/skills/vibe-coding-workflow"
+SKILL_DEST_DIR="$CLAUDE_DIR/skills/vibe-coding-workflow"
 
-if [ ! -f "$SKILL_SRC" ]; then
-  echo "[vibe-coding-workflow] ⚠ SKILL.md 源文件不存在: $SKILL_SRC"
+if [ ! -d "$SKILL_SRC_DIR" ]; then
+  echo "[vibe-coding-workflow] ⚠ skill 源目录不存在: $SKILL_SRC_DIR"
   exit 1
 fi
 
-mkdir -p "$(dirname "$SKILL_DEST")"
-cp "$SKILL_SRC" "$SKILL_DEST"
-echo "[vibe-coding-workflow] ✓ SKILL.md 已安装到 $SKILL_DEST"
+mkdir -p "$SKILL_DEST_DIR"
+cp -R "$SKILL_SRC_DIR"/. "$SKILL_DEST_DIR"
+echo "[vibe-coding-workflow] ✓ skill 目录已安装到 $SKILL_DEST_DIR"
 
 # init-vibe command
-CMD_SRC="$SOURCE_DIR/.claude/commands/init-vibe.md"
+CMD_SRC="$SOURCE_DIR/commands/init-vibe.md"
 CMD_DEST="$CLAUDE_DIR/commands/init-vibe.md"
 
 if [ ! -f "$CMD_SRC" ]; then

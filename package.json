@@ -13,16 +13,20 @@
   "license": "MIT",
   "author": "",
   "files": [
-    ".claude/",
+    "skills/",
+    "commands/",
     "install.js",
     "install.ps1",
     "install.sh",
-    "README.md"
+    "README.md",
+    "scripts/validate-skill-layout.js"
   ],
   "scripts": {
-    "postinstall": "node install.js"
+    "postinstall": "node install.js --scope user",
+    "validate:skills": "node scripts/validate-skill-layout.js"
   },
   "bin": {
+    "vibe-coding-workflow": "./install.js",
     "init-vibe-install": "./install.js"
   },
   "engines": {
