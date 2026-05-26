@@ -2,12 +2,11 @@
 /**
  * vibe-coding-workflow installer
  *
- * Copies skill folder → ~/.claude/skills/vibe-coding-workflow/
- * Copies init-vibe.md → ~/.claude/commands/
+ * Copies skill folder and init-vibe.md to project .claude/ or user ~/.claude/.
  *
  * Usage:
- *   npm install -g vibe-coding-workflow   (auto-runs via postinstall)
- *   node install.js                        (manual)
+ *   npx vibe-coding-workflow              (default: project .claude)
+ *   npx vibe-coding-workflow --scope user (user ~/.claude)
  *   node install.js --dry-run             (preview only)
  */
 

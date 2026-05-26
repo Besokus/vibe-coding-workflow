@@ -91,27 +91,27 @@ If `--dry-run`:
    Default to `balanced` if not specified.
 
 5. Generate project `CLAUDE.md` (thin entrypoint) with profile and rules split into always-load / on-demand.
-   Use the template from `templates.md` — managed blocks are already segmented:
-   - Tech Stack / Profile / Verification Commands inside `<!-- vibe: managed -->` (auto-refreshable, re-detected on repair)
+   Use the template from `templates/CLAUDE.md` (indexed by `templates.md`) — managed blocks are already segmented:
+   - Tech Stack / Profile / Verification Commands inside `<!-- vibe-managed:start claude-metadata -->` (auto-refreshable, re-detected on repair)
    - Core Principles / Workflow outside managed blocks (user-customizable, never overwritten)
-   - Rules Index inside `<!-- vibe: managed -->` (template-driven, refreshed from template on repair)
+   - Rules Index inside `<!-- vibe-managed:start claude-rules-index -->` (template-driven, refreshed from template on repair)
 
-6. If `--minimal` was NOT requested, generate `.claude/rules/` files — all 13 rules using managed block markers:
-   - `rule-priority.md` (always-load)
-   - `workflow-classification.md` (always-load)
-   - `task-contract.md` (always-load)
-   - `confirmation-policy.md` (always-load)
-   - `scope-control.md` (always-load)
-   - `dirty-worktree-protection.md` (always-load)
-   - `command-policy.md` (on-demand)
-   - `planning-policy.md` (on-demand)
-   - `failure-protocol.md` (on-demand)
-   - `verification-discipline.md` (on-demand)
-   - `git-workflow.md` (on-demand)
-   - `skill-dispatch.md` (on-demand, with detected skills populated)
-   - `context-hygiene.md` (on-demand)
+6. If `--minimal` was NOT requested, generate `.claude/rules/` files — all 13 rules using versioned managed block markers (`<!-- vibe-managed:start block-id version=0.2 type=template|detected -->`). Read each rule template from `references/templates/rules/<name>.md`:
+   - `rule-priority.md`
+   - `workflow-classification.md`
+   - `task-contract.md`
+   - `confirmation-policy.md`
+   - `scope-control.md`
+   - `dirty-worktree-protection.md`
+   - `command-policy.md`
+   - `planning-policy.md`
+   - `failure-protocol.md`
+   - `verification-discipline.md`
+   - `git-workflow.md`
+   - `skill-dispatch.md`
+   - `context-hygiene.md`
 
-   Wrap generated content in `<!-- vibe: managed -->` / `<!-- /vibe: managed -->` blocks.
+   Wrap generated content in `<!-- vibe-managed:start block-id version=0.2 type=... -->` / `<!-- vibe-managed:end block-id -->` blocks. Use block IDs from the registry in `templates.md` managed block markers section.
 
 7. If `--with-hooks` is requested, provide hooks suggestions (do not auto-enable).
 

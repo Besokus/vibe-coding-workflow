@@ -22,7 +22,7 @@
     "scripts/validate-skill-layout.js"
   ],
   "scripts": {
-    "postinstall": "node install.js --scope user",
+    "postinstall": "node -e \"console.log('[vibe-coding-workflow] Run \\\"npx vibe-coding-workflow\\\" in your project to install. Or \\\"npx vibe-coding-workflow --scope user\\\" for global install.')\"",
     "validate:skills": "node scripts/validate-skill-layout.js"
   },
   "bin": {

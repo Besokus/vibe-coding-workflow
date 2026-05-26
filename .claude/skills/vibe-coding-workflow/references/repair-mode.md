@@ -7,7 +7,7 @@ Use for explicit repair requests (`--repair`, "repair workflow", "fix workflow c
 ## Rule
 
 Repair is additive and non-destructive:
-- Only update content inside `<!-- vibe: managed -->` / `<!-- /vibe: managed -->` blocks
+- Only update content inside `<!-- vibe-managed:start -->` / `<!-- vibe-managed:end -->` blocks identified by block ID
 - Preserve user customizations outside managed blocks
 - If file has no managed block markers, treat as fully user-owned — skip unless `--force` is used
 - Add missing files from templates (check all 13 rules files)
@@ -20,8 +20,10 @@ Repair is additive and non-destructive:
 ## Managed Block Strategy
 
 ### Files with managed blocks
-- Replace content only between `<!-- vibe: managed -->` and `<!-- /vibe: managed -->`
+- Match blocks by ID (e.g., `<!-- vibe-managed:start claude-metadata -->`)
+- Only refresh content between matching start/end markers for known block IDs
 - Leave all other content intact
+- Unknown block IDs should be reported, not rewritten
 - If a file has managed blocks but is missing some expected blocks, add them
 
 ### Files without managed blocks
@@ -31,20 +33,19 @@ Repair is additive and non-destructive:
 
 ## Managed Block Refresh Logic
 
-When refreshing a managed block, determine the refresh method by content type:
+When refreshing a managed block, determine the refresh method by its `type` attribute:
 
-### Content Type: Template-Driven (static)
+### Content Type: Template-Driven (type=template)
 These managed blocks contain content that does not depend on project state.
 - All `.claude/rules/*.md` files (rule-priority, workflow-classification, etc.)
-- `CLAUDE.md` Rules Index section
+- `CLAUDE.md` Rules Index section (`claude-rules-index`)
 
-**Refresh method**: Replace content inside markers with fresh template from `references/templates.md`.
+**Refresh method**: Replace content between start/end markers with fresh template from `references/templates/rules/<block-id>.md`, using the template file that matches the block ID.
 
-### Content Type: Detected (dynamic)
+### Content Type: Detected (type=detected)
 These managed blocks contain values detected from project files at init time.
-- `CLAUDE.md` Tech Stack section
-- `CLAUDE.md` Workflow Profile section
-- `CLAUDE.md` Verification Commands section
+- `CLAUDE.md` Tech Stack / Profile / Verification Commands (`claude-metadata`)
+- `skill-dispatch.md` Available Skills section (`rule-skill-dispatch-available`)
 
 **Refresh method**: Re-detect values from project files (same detection logic as init mode steps 1-2), then update the content inside markers using the template structure but with re-detected values. Do NOT replace with raw template (which has `[detected]` placeholders).
 
@@ -55,16 +56,23 @@ These sections are intentionally left outside managed blocks so users own them.
 
 **Refresh method**: Never touch. User-owned.
 
+## Stale Version Detection
+
+When repairing, compare marker version (e.g., `version=0.2`) against the current template version:
+- If versions match: refresh content normally
+- If versions differ: refresh content AND update version string to current template version
+- Report stale blocks in repair output
+
 ## Repair Actions
 
 1. Generate missing workflow files from templates (check all 13 rules files)
 2. For each existing file with managed blocks:
-   - If template-driven block: replace content inside markers from templates
+   - If template-driven block: replace content inside markers from templates, matched by block ID
    - If detected block: re-detect values, then update content inside markers with detected values (not raw template)
-3. Add missing rules index references in `CLAUDE.md`
-4. Verify profile is set (add if missing, default to balanced)
+3. Add missing rules index references in `CLAUDE.md` (inside `claude-rules-index` block)
+4. Verify profile is set (add if missing, inside `claude-metadata` block, default to balanced)
 5. Verify L2 plan gate and L3 discovery gate are configured correctly
-6. Check and update skill-dispatch.md available skills section (re-scan available skills)
+6. Check and update skill-dispatch.md available skills section (re-scan available skills, update `rule-skill-dispatch-available` block)
 7. If `CLAUDE.md` is oversized, recommend split; do not force-move user text
 
 Use `references/templates.md` only when creating or patching files inside managed blocks.
@@ -73,7 +81,7 @@ Use `references/templates.md` only when creating or patching files inside manage
 
 If uncertain whether section is user-customized:
 - Check for managed block markers first
-- If markers exist, only edit inside them
+- If markers exist, only edit inside them (match by block ID)
 - If no markers, stop and ask before editing that section
 
 ## Output Contract

@@ -38,14 +38,14 @@ Invokes the `vibe-coding-workflow` skill to detect tech stack, generate CLAUDE.m
 ### Init Mode (default when no CLAUDE.md exists)
 
 1. **Detect** — read project files to detect tech stack, package manager, verification commands
-2. **Scan** — discover actually available global agents, skills, commands (no hardcoded lists)
+2. **Scan** — discover actually available global agents, skills, commands (no hardcoded lists), including project and user skills for dispatch registration
 3. **Profile** — ask or detect profile preference (fast / balanced / strict)
 4. **Generate** — create:
    - `CLAUDE.md` — thin project workflow entry point (~40 lines) with profile and always-load/on-demand split
    - `.claude/rules/rule-priority.md` — priority order + profile semantics
    - `.claude/rules/workflow-classification.md` — L0-L3 + reclassification checkpoints
    - `.claude/rules/task-contract.md` — per-task self-check baseline
-   - `.claude/rules/confirmation-policy.md` — L0-L2 auto, L3+high-risk confirm
+   - `.claude/rules/confirmation-policy.md` — L0-L1 auto, L2 plan-confirm, L3+high-risk confirm
    - `.claude/rules/scope-control.md` — scope boundaries + drift correction
    - `.claude/rules/dirty-worktree-protection.md` — pre-edit dirty state check (P0)
    - `.claude/rules/command-policy.md` — risk-based command classification
@@ -67,7 +67,7 @@ Reports PASS/FAIL/WARN for each criterion with severity. Never writes files.
 ### Repair Mode (--repair)
 
 Additive and non-destructive repair using managed block markers:
-- Only updates content inside `<!-- vibe: managed -->` blocks
+- Only updates content inside `<!-- vibe-managed:start -->` / `<!-- vibe-managed:end -->` blocks identified by block ID
 - User customizations outside managed blocks are preserved
 - Files without managed blocks are skipped (reported as "user-owned, skipped")
 - Generates missing files from templates (all 13 rules files)
@@ -83,41 +83,29 @@ Additive and non-destructive repair using managed block markers:
 ### Workflow Profile
 - Profile: balanced
 
-### 检测到的技术栈
-- 语言: TypeScript
-- 框架: Next.js 14
-- 包管理: pnpm
-- 测试: Vitest
+### Detected Stack
+- Language: TypeScript / Next.js 14
+- Package manager: pnpm
+- Test: Vitest
 
-### 验证命令
+### Verification Commands
 - build: pnpm build
 - test: pnpm test
 - lint: pnpm lint
 - typecheck: pnpm typecheck
 
-### 生成的文件
-Always-load (日常任务加载):
-- CLAUDE.md — 项目工作流入口
-- .claude/rules/*.md — 6 条核心规则
+### Generated Files
+- CLAUDE.md
+- .claude/rules/ (13 rules, 6 always-load + 7 on-demand)
 
-On-demand (大任务时加载):
-- .claude/rules/*.md — 7 条治理规则
+### Registered Skills
+- ✅ systematic-debugging — exact match
+- ↪ grill-with-docs → my-doc-agent (alternative, keyword: docs)
+- ⛔ karpathy-guidelines — not found, using scope-control.md fallback
 
-### 引用的全局资源
-- ECC rules: ~/.claude/rules/ecc/common, ecc/web, ecc/zh
-- Skills: planning-with-files, karpathy-guidelines, verification-before-completion, systematic-debugging
-- Agents: code-reviewer, security-reviewer, tdd-guide, planner (等 N 个)
-
-### 已注册的技能
-- ✅ systematic-debugging — exact match（带内置 fallback）
-- ↪ grill-with-docs → 使用 my-doc-agent 作为替代（keyword: docs）
-- ⛔ karpathy-guidelines — 未安装，使用 scope-control.md 作为 fallback
-
-### Hooks 建议
-[仅 --with-hooks 时显示]
-
-现在可以直接说需求开始开发。AI 会自动按 L0-L3 分级执行。
-L2 任务会先提供计划等你确认；L3 任务会先做 read-only 调研再出方案。
-Profile 控制体验强度但不绕过安全边界。
-运行 /init-vibe --audit 可随时检查工作流健康状态。
+### Quick Start
+- L0/L1: direct execution
+- L2: propose plan, wait for confirmation
+- L3: read-only discovery first
+- /init-vibe --audit to check health at any time
 ```

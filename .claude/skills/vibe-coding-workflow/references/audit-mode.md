@@ -18,7 +18,8 @@ Audit is read-only. Never write files.
 6. `.claude/rules/` directory exists
 7. Required rules files exist (all 13: rule-priority, workflow-classification, task-contract, confirmation-policy, scope-control, dirty-worktree-protection, command-policy, planning-policy, failure-protocol, verification-discipline, git-workflow, skill-dispatch, context-hygiene)
 8. Rules index is split into always-load and on-demand groups
-9. Files are wrapped in managed block markers (`<!-- vibe: managed -->`)
+9. Files are wrapped in versioned managed block markers (`<!-- vibe-managed:start -->` / `<!-- vibe-managed:end -->` with block ID, version, and type attributes)
+10. Managed block marker versions are current (no stale templates)
 
 ## Semantic Audit
 
@@ -46,6 +47,9 @@ Audit is read-only. Never write files.
 - Check that dirty-worktree-protection.md exists
 - Verify it guards pre-edit (not just pre-commit)
 - Flag if it only checks at commit time
+- Verify policy permits safe minimal patches to unrelated dirty files
+- Verify policy forbids touching unrelated dirty hunks
+- Flag contradictory language ("never touch" vs "patch minimally" in same rule)
 
 ### Skill Reference Validity
 - Check that skill-dispatch.md references exist as either:
@@ -54,8 +58,16 @@ Audit is read-only. Never write files.
 - Flag references to skills that are neither installed nor have a documented fallback
 
 ### Managed Block Consistency
-- Check that rule files have `<!-- vibe: managed -->` / `<!-- /vibe: managed -->` markers
-- Flag files where managed blocks are missing or mismatched
+- Check that rule files have `<!-- vibe-managed:start -->` / `<!-- vibe-managed:end -->` markers with block IDs
+- Flag files with old-style `<!-- vibe: managed -->` markers (needs migration)
+- Verify marker format: `<!-- vibe-managed:start <block-id> version=<version> type=<type> -->`
+- Flag files where block IDs don't match expected IDs from templates
+- Flag files with missing version or type attributes
+
+### Stale Template Versions
+- Check marker version attribute against current template version (0.2)
+- Report blocks with version < 0.2 as stale, recommend `--repair`
+- Report unknown block IDs (not in the managed block registry) as potentially user-added
 
 ### CLAUDE.md Size
 - Warn if CLAUDE.md exceeds 60 lines (indicates rule content leaking out of .claude/rules/)

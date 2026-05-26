@@ -14,12 +14,10 @@ A structured workflow system for Claude Code that brings discipline, predictabil
 
 **方式一：npx（推荐）**
 ```bash
-# 在你的项目根目录执行：自动安装 skill 到 User + Project 两个范围
-# - postinstall 阶段：安装到 ~/.claude/（全局可用，后续 Claude Code 会话可直接使用）
-# - 执行阶段：安装到 .claude/（本项目内使用）
+# 在你的项目根目录执行：安装到 .claude/（项目范围）
 npx vibe-coding-workflow
 
-# 仅安装到 ~/.claude/（User scope），不写入项目目录
+# 安装到 ~/.claude/（全局范围，所有项目可用）
 npx vibe-coding-workflow --scope user
 ```
 
@@ -65,7 +63,7 @@ L1 | 添加用户头像上传接口
   → DoD: 4xx 校验通过 + 文件落盘 + typecheck pass
 ```
 
-L0/L1/L2 静默执行不打断；L3 和安全敏感操作会暂停确认。
+L0/L1 静默执行不打断；L2 需先提计划确认后再执行；L3 和安全敏感操作会暂停确认。
 
 ---
 
@@ -76,7 +74,7 @@ L0/L1/L2 静默执行不打断；L3 和安全敏感操作会暂停确认。
 - **L2 Plan Gate** — medium tasks require a proposed plan (files, steps, acceptance criteria) and developer confirmation before implementation
 - **L3 Discovery-First** — complex tasks start read-only, producing findings and options before any code is written
 - **Definition of Done Formula** — `DoD = Level Baseline + Task-Derived Acceptance Criteria`, adapts to every task without being too rigid or too vague
-- **Zero Distraction for Simple Work** — L0/L1 execute silently with no interruptions; L2/L3 and high-risk operations require appropriate confirmation
+- **Zero Distraction for Simple Work** — L0/L1 execute silently with no interruptions; L2 requires plan confirmation before implementation; L3 and high-risk operations require appropriate confirmation
 - **Context Hygiene Built In** — 13 generated rules files (6 always-load + 7 on-demand) define exactly when to `/clear`, what each file is responsible for, and how to recover across sessions
 - **Profiles** — fast/balanced/strict profiles control experience intensity without bypassing safety boundaries
 - **Managed Block Repair** — `--repair` only updates vibe-managed blocks, preserving user customizations
@@ -96,7 +94,7 @@ L0/L1/L2 静默执行不打断；L3 和安全敏感操作会暂停确认。
 | **AI underestimates complexity** — starts editing a "simple fix" that turns into cross-module changes | Reclassification checkpoints: AI re-checks task level before first edit, at second file, and after failure. Scope escalation pauses for developer decision |
 | **Same bug fixed 3 times** — AI patches the same symptom repeatedly without diagnosing root cause | 2-strike protocol: after 2 failures, stop patching, re-diagnose, escalate |
 | **No recovery after /clear** — lose all context of what you were doing | Cross-session recovery via task_plan.md, findings.md, progress.md — new sessions pick up where you left off |
-| **Over-interruption** — AI asks for confirmation on trivial changes | Confirmation policy: L0/L1 auto-execute, L2 plan confirm, only L3 and high-risk ops block |
+| **Over-interruption** — AI asks for confirmation on trivial changes | Confirmation policy: L0/L1 auto-execute, L2 requires plan confirmation, only L3 and high-risk ops block |
 | **CLAUDE.md bloat** — rules files that grow to 200+ lines and nobody reads them | Thin CLAUDE.md (~40 lines) + 13 focused rules files in `.claude/rules/` with always-load/on-demand split |
 | **Manual mode selection** — you have to tell the AI what complexity level to use for each task | Task classification protocol with hard upgrade conditions (file count, security, API changes, failure count) — the AI determines the level automatically |
 
@@ -173,19 +171,41 @@ When `--repair` runs, it respects managed block markers to preserve your customi
 
 ```
 # In any generated file:
-<!-- vibe: managed -->
+<!-- vibe-managed:start claude-metadata version=0.2 type=detected -->
 ...generated content (will be refreshed by --repair)...
-<!-- /vibe: managed -->
+<!-- vibe-managed:end claude-metadata -->
 
 ...your custom content (preserved across --repair)...
 ```
 
-- Content inside `<!-- vibe: managed -->` blocks gets refreshed from templates
+- Content inside `<!-- vibe-managed:start -->` / `<!-- vibe-managed:end -->` blocks gets refreshed from templates, matched by block ID
 - Content outside these markers is left untouched
 - Files without managed block markers are treated as fully user-owned and are skipped during repair
 - Use `--force` to regenerate a file entirely from its template
 
 This allows you to add custom rules, notes, or modifications to any generated file without losing them on repair.
+
+---
+
+## Output Examples
+
+### Success (compact)
+```
+Done:
+- Changed: src/user/avatar.ts — added POST /user/avatar endpoint
+- Verified: `pnpm typecheck` passed, `pnpm test` passed (3/3)
+- Commit: not committed
+```
+
+### Blocked (failure with clear next step)
+```
+Blocked:
+- Command: pnpm test
+- Error: 1 test failed — avatar.test.ts:42 expected 200 got 400
+- Likely cause: file size validation rejecting valid payload
+- Next safe step: check file size threshold in avatar.test.ts
+- Need confirmation: yes
+```
 
 ---
 
@@ -265,7 +285,7 @@ your-project/
     ├── rule-priority.md            priority order + profile semantics (always-load)
     ├── workflow-classification.md  L0-L3 + reclassification checkpoints (always-load)
     ├── task-contract.md            per-task self-check baseline (always-load)
-    ├── confirmation-policy.md      L0-L2 auto, L3+high-risk confirm (always-load)
+    ├── confirmation-policy.md      L0-L1 auto, L2 plan-confirm, L3+high-risk confirm (always-load)
     ├── scope-control.md            scope boundaries + drift correction (always-load)
     ├── dirty-worktree-protection.md pre-edit dirty state P0 check (always-load)
     ├── command-policy.md           risk-based command classification (on-demand)
@@ -322,7 +342,7 @@ Every skill reference in `skill-dispatch.md` includes both `[if available]` and 
 ```
 vibe-coding-workflow/
 ├── README.md                  # 项目介绍
-├── package.json               # npm package (postinstall 自动安装)
+├── package.json               # npm package (npx 入口)
 ├── install.js                 # Node.js 跨平台安装脚本
 ├── install.sh                 # macOS / Linux 安装脚本
 ├── install.ps1                # Windows PowerShell 安装脚本
@@ -332,6 +352,10 @@ vibe-coding-workflow/
 │   └── vibe-coding-workflow/  # skill 单一事实源（source of truth）
 │       ├── SKILL.md           # 路由入口（精简）
 │       └── references/        # 按需加载文档
+│           ├── templates.md   # 模板索引 + managed block 注册表
+│           └── templates/     # 独立模板文件
+│               ├── CLAUDE.md
+│               └── rules/
 ├── scripts/
 │   └── validate-skill-layout.js
 └── .claude/
@@ -358,7 +382,7 @@ npm publish
 
 Notes:
 - Ensure `package.json` has a unique `"name"` (use a scope like `@yourname/vibe-coding-workflow` if needed).
-- `bin.vibe-coding-workflow` points to `install.js` so `npx` can run it.
+- `bin.vibe-coding-workflow` points to `install.js` so `npx` can run it. The `postinstall` script is informational only (no file writes).
 - Keep `skills/vibe-coding-workflow/` as the only editable source. `.claude/skills/vibe-coding-workflow/` should stay an identical mirror.
 
 Pre-publish checks:
