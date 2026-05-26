@@ -14,10 +14,12 @@ A structured workflow system for Claude Code that brings discipline, predictabil
 
 **方式一：npx（推荐）**
 ```bash
-# 在你的项目根目录执行：默认以 Project scope 安装到 .claude/
+# 在你的项目根目录执行：自动安装 skill 到 User + Project 两个范围
+# - postinstall 阶段：安装到 ~/.claude/（全局可用，后续 Claude Code 会话可直接使用）
+# - 执行阶段：安装到 .claude/（本项目内使用）
 npx vibe-coding-workflow
 
-# 想全局安装到 ~/.claude/（User scope）
+# 仅安装到 ~/.claude/（User scope），不写入项目目录
 npx vibe-coding-workflow --scope user
 ```
 

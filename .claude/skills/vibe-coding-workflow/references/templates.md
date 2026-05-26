@@ -8,6 +8,7 @@ Load only when writing files.
 ```markdown
 # CLAUDE.md - [Project Name]
 
+<!-- vibe: managed -->
 ## Tech Stack
 - Language: [detected]
 - Framework: [detected]
@@ -25,6 +26,7 @@ build: [detected]
 test: [detected]
 lint: [detected]
 typecheck: [detected]
+<!-- /vibe: managed -->
 
 ## Core Principles
 - Prefer minimal correct changes
@@ -39,7 +41,7 @@ typecheck: [detected]
 - L3 and high-risk operations require developer confirmation
 
 ## Rules Index
-
+<!-- vibe: managed -->
 ### Always-load
 - `.claude/rules/rule-priority.md`
 - `.claude/rules/workflow-classification.md`
@@ -56,6 +58,7 @@ typecheck: [detected]
 - `.claude/rules/git-workflow.md`
 - `.claude/rules/skill-dispatch.md`
 - `.claude/rules/context-hygiene.md`
+<!-- /vibe: managed -->
 ```
 
 ## Rules Files

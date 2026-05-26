@@ -4,7 +4,36 @@
 
 Use for explicit initialization requests (`/init-vibe`, "init project workflow", "setup workflow").
 
-## Steps
+### Pre-Guard: Existing CLAUDE.md Check
+
+Before any detection steps:
+
+- Check if `CLAUDE.md` already exists in project root
+- If it exists AND `--force` was NOT requested:
+  - **Switch to audit-first mode** — run a lightweight audit of existing workflow
+  - Report findings (profile, file count, structural issues)
+  - Ask developer: `[init (replace)]` / `[repair (fix issues)]` / `[skip]`
+  - Do NOT proceed to generate files unless developer chooses "init"
+- If `--force` was requested: proceed with init (overwrites existing CLAUDE.md)
+
+### Flag Modifiers
+
+These flags modify init behavior and must be checked at each step:
+
+- `--dry-run`: Run detection + scan + report. Skip all file writes. Show "Would generate: ..." in output.
+- `--minimal`: Run full detection cycle, generate CLAUDE.md only. Skip `.claude/rules/` generation.
+- `--profile fast|balanced|strict`: Set workflow profile (default: balanced).
+
+### Dry-Run Short-Circuit
+
+If `--dry-run`:
+1. Run steps 1-4 (detect, scan, profile selection)
+2. Show generation preview with "Would generate:" prefix
+3. Skip steps 5-7 entirely
+4. Produce output report with `[DRY RUN — no files written]` banner
+5. Return immediately
+
+### Init Steps
 
 1. Detect project context from common files (all optional):
 - `package.json`
@@ -62,8 +91,12 @@ Use for explicit initialization requests (`/init-vibe`, "init project workflow",
    Default to `balanced` if not specified.
 
 5. Generate project `CLAUDE.md` (thin entrypoint) with profile and rules split into always-load / on-demand.
+   Use the template from `templates.md` — managed blocks are already segmented:
+   - Tech Stack / Profile / Verification Commands inside `<!-- vibe: managed -->` (auto-refreshable, re-detected on repair)
+   - Core Principles / Workflow outside managed blocks (user-customizable, never overwritten)
+   - Rules Index inside `<!-- vibe: managed -->` (template-driven, refreshed from template on repair)
 
-6. Generate `.claude/rules/` files — all 13 rules using managed block markers:
+6. If `--minimal` was NOT requested, generate `.claude/rules/` files — all 13 rules using managed block markers:
    - `rule-priority.md` (always-load)
    - `workflow-classification.md` (always-load)
    - `task-contract.md` (always-load)
@@ -84,6 +117,7 @@ Use for explicit initialization requests (`/init-vibe`, "init project workflow",
 
 ## Files To Generate
 
+All files (default):
 - `CLAUDE.md`
 - `.claude/rules/rule-priority.md`
 - `.claude/rules/workflow-classification.md`
@@ -99,11 +133,15 @@ Use for explicit initialization requests (`/init-vibe`, "init project workflow",
 - `.claude/rules/skill-dispatch.md`
 - `.claude/rules/context-hygiene.md`
 
+Minimal mode (`--minimal`): `CLAUDE.md` only (no `.claude/rules/` files).
+
 Use `references/templates.md` for exact template content.
 
 ## Output Contract
 
 Return:
+- operation mode: init / dry-run / minimal
+- if dry-run: `[DRY RUN — no files written]` banner at top of report
 - selected profile (fast / balanced / strict)
 - detected stack summary
 - selected verification commands
