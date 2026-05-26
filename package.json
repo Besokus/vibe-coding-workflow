@@ -9,9 +9,16 @@
     "spec-driven-development", "task-decomposition",
     "llm-workflow", "software-development", "claude"
   ],
-  "homepage": "https://github.com/YOUR_USERNAME/vibe-coding-workflow",
+  "homepage": "https://github.com/Besokus/vibe-coding-workflow",
   "license": "MIT",
-  "author": "",
+  "author": "Besokus",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Besokus/vibe-coding-workflow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Besokus/vibe-coding-workflow/issues"
+  },
   "files": [
     "skills/",
     "commands/",

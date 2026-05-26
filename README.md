@@ -308,7 +308,7 @@ No. The skill's description is scoped to init/audit/repair phrases only. Normal 
 `/init-vibe` (no flags) audits first. If CLAUDE.md exists, it reports findings and asks whether you want to init (replace), repair (fix issues), or skip. Only `--force` overwrites without asking.
 
 **Q: Can I customize the generated rules?**
-Yes. Edit outside the `<!-- vibe: managed -->` blocks to keep your changes across `--repair` runs. Edits inside managed blocks will be refreshed. Files without managed block markers are treated as fully user-owned and skipped by `--repair` (use `--force` to regenerate from template).
+Yes. Edit outside the `<!-- vibe-managed:start -->` / `<!-- vibe-managed:end -->` blocks to keep your changes across `--repair` runs. Edits inside managed blocks will be refreshed from templates. Files without managed block markers are treated as fully user-owned and skipped by `--repair` (use `--force` to regenerate from template).
 
 **Q: What if something goes wrong?**
 Run `/init-vibe --audit` to check workflow health. It runs both structural (file existence, managed blocks) and semantic (rule conflicts, L2/L3 gate strength, auto-commit safety, skill reference validity) checks — over 14 criteria. Reports PASS/FAIL/WARN with severity. Then `/init-vibe --repair` fixes what it can using managed block markers.
